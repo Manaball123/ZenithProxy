@@ -13,10 +13,7 @@ import com.github.steveice10.packetlib.tcp.TcpServer;
 import com.zenith.client.ClientSession;
 import com.zenith.event.module.ClientTickEvent;
 import com.zenith.event.proxy.*;
-import com.zenith.module.AntiAFK;
-import com.zenith.module.AutoDisconnect;
-import com.zenith.module.AutoReply;
-import com.zenith.module.Module;
+import com.zenith.module.*;
 import com.zenith.server.CustomServerInfoBuilder;
 import com.zenith.server.ProxyServerListener;
 import com.zenith.server.ServerConnection;
@@ -224,7 +221,8 @@ public class Proxy {
         this.modules = asList(
                 new AntiAFK(this),
                 new AutoDisconnect(this),
-                new AutoReply(this)
+                new AutoReply(this),
+                new Pulse(this)
         );
     }
 
