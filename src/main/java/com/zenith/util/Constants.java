@@ -16,6 +16,7 @@ import com.zenith.discord.DiscordBot;
 import com.zenith.server.ServerConnection;
 import com.zenith.server.handler.player.incoming.ServerChatHandler;
 import com.zenith.server.handler.player.incoming.movement.PlayerSwingArmPacketHandler;
+import com.zenith.server.handler.player.outgoing.ServerSpawnPlayerHandler;
 import com.zenith.server.handler.player.postoutgoing.ClientRequestPacketPostHandler;
 import com.zenith.server.handler.player.postoutgoing.HeldItemChangePostHandler;
 import com.zenith.server.handler.player.postoutgoing.JoinGamePostHandler;
@@ -156,6 +157,7 @@ public class Constants {
             //
             .registerOutbound(new LoginSuccessOutgoingHandler())
             .registerOutbound(new ServerTablistDataOutgoingHandler())
+            .registerOutbound(new ServerSpawnPlayerHandler())
             //
             // Post-outbound packets
             //

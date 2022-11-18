@@ -225,6 +225,16 @@ public final class Config {
             public List<String> spectatorWhitelist = new ArrayList<>();
         }
 
+        public Schizo schizo = new Schizo();
+
+        public static final class Schizo {
+            public boolean enabled = false;
+            public List<String> obsessed = asList(
+                    "odpay",
+                    "rfresh2",
+                    "popbob"
+            );
+        }
 
         public static final class Bind {
             public String address = "0.0.0.0";
