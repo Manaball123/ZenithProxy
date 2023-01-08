@@ -262,6 +262,9 @@ public class DiscordBot {
                         + (int) event.playerEntity.getZ()
                         + "]||", false);
             }
+
+            embedCreateSpec.addField("Has Left", "no", false);
+
             if (CONFIG.client.extra.visualRangeAlertMention) {
                 if (notFriend) {
                     if (CONFIG.discord.visualRangeMentionRoleId.length() > 3) {
@@ -276,6 +279,11 @@ public class DiscordBot {
                 sendEmbedMessage(embedCreateSpec.build());
             }
         }
+    }
+
+    @Subscribe
+    public void handePlayerLeftVisualRangeEvent(PlayerLeftVisualRangeEvent event) {
+
     }
 
     @Subscribe
