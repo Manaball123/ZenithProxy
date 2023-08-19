@@ -9,17 +9,6 @@ import lombok.NonNull;
 import java.lang.reflect.Method;
 
 public class MCProxyViaChannelInitializer extends ChannelInitializer<Channel> {
-    private static final Method INIT_CHANNEL;
-
-    static {
-        try {
-            INIT_CHANNEL = ChannelInitializer.class.getDeclaredMethod("initChannel", Channel.class);
-            INIT_CHANNEL.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private final ChannelInitializer<Channel> original;
 
     public MCProxyViaChannelInitializer(ChannelInitializer<Channel> original) {
@@ -28,7 +17,10 @@ public class MCProxyViaChannelInitializer extends ChannelInitializer<Channel> {
 
     @Override
     protected void initChannel(@NonNull Channel channel) throws Exception {
-        INIT_CHANNEL.invoke(original, channel);
+        Method initChannelMethod = ChannelInitializer.class.getDeclaredMethod("initChannel", Channel.class);
+        initChannelMethod.setAccessible(true);
+        initChannelMethod.invoke(original, channel);
+
         UserConnectionImpl userConnection = new UserConnectionImpl(channel, true);
         new ProtocolPipelineImpl(userConnection);
         // outbound order before: manager -> codec -> compression -> sizer -> encryption -> readTimeout
