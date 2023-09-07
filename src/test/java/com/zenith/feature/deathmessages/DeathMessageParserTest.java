@@ -1,5 +1,6 @@
 package com.zenith.feature.deathmessages;
 
+import com.zenith.Shared;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -123,7 +124,27 @@ public class DeathMessageParserTest {
                 "Gosha_Dibenko", "wither skeletal warrior", KillerType.MOB, "Stone Sword");
     }
 
+    @Test
+    public void burnedApartByZombieTest() {
+        parseTest("00nether burned apart whilst fighting a zombie",
+                "00nether", "zombie", KillerType.MOB, null);
+    }
+
+    @Test
+    public void assassinatedByPillagersTest() {
+        parseTest("yakyyakyyou was assassinated by pillagers.",
+                  "yakyyakyyou", "pillagers", KillerType.MOB, null);
+    }
+
+    @Test
+    public void pushedByMobTest() {
+        parseTest("LavamanHero fell to death after being pushed by Discount code Egg @ Rusherhack.org",
+                  "LavamanHero", null, null, "Discount code Egg @ Rusherhack.org");
+    }
+
     private void parseTest(final String rawInput, final String victim, final String killerName, final KillerType killerType, final String weapon) {
+        Shared.loadConfig();
+        Shared.loadLaunchConfig();
         final Optional<DeathMessageParseResult> deathMessageParseResult = deathMessagesParser.parse(rawInput);
         assertTrue(deathMessageParseResult.isPresent());
         assertEquals(deathMessageParseResult.get().getVictim(), victim);

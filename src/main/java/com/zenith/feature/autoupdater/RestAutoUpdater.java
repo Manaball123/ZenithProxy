@@ -9,6 +9,7 @@ import reactor.netty.http.client.HttpClient;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.zenith.Shared.DEFAULT_LOG;
 import static com.zenith.Shared.LAUNCH_CONFIG;
@@ -40,12 +41,15 @@ public class RestAutoUpdater extends AutoUpdater {
     }
 
     public boolean validReleaseChannel(final String in) {
-        return List.of("git", "java", "linux", "linux.pre").stream()
+        return Stream.of("git", "java", "linux")
             .anyMatch(in::startsWith);
     }
 
     @Override
     public void updateCheck() {
+        // skip if we already found an update
+        // there are rate limits on the github api so its best to avoid calls where not needed
+        if (getUpdateAvailable()) return;
         httpClient
             .get()
             .uri("/releases?per_page=100")
@@ -58,7 +62,7 @@ public class RestAutoUpdater extends AutoUpdater {
                     return Mono.empty();
                 }
                 if (versionLooksCorrect(releaseIdToTag.getSecond())) {
-                    if (!Objects.equals(LAUNCH_CONFIG.version, releaseIdToTag.getSecond())) {
+                    if (!Objects.equals(LAUNCH_CONFIG.version, releaseIdToTag.getSecond()) && versionIsLessThanCurrent(LAUNCH_CONFIG.version, releaseIdToTag.getSecond())) {
                         if (!getUpdateAvailable()) {
                             DEFAULT_LOG.info(
                                 "New update on release channel {}! Current: {} New: {}!",
@@ -76,6 +80,31 @@ public class RestAutoUpdater extends AutoUpdater {
 
     private boolean versionLooksCorrect(final String version) {
         return version != null && version.matches("[0-9]+\\.[0-9]+\\.[0-9]+\\+.*") && version.endsWith("+" + LAUNCH_CONFIG.release_channel);
+    }
+
+    private boolean versionIsLessThanCurrent(final String current, final String newVersion) {
+        String[] currentSplit = current.split("\\.");
+        String[] newSplit = newVersion.split("\\.");
+        // replace any non-numeric characters with empty string
+        for (int i = 0; i < 3; i++) {
+            try {
+                currentSplit[i] = currentSplit[i].replaceAll("[^\\d]", "");
+                if (currentSplit[i].isEmpty()) {
+                    currentSplit[i] = "0";
+                }
+                newSplit[i] = newSplit[i].replaceAll("[^\\d]", "");
+                if (newSplit[i].isEmpty()) {
+                    newSplit[i] = "0";
+                }
+                if (Integer.parseInt(currentSplit[i]) > Integer.parseInt(newSplit[i])) {
+                    return false;
+                }
+            } catch (final Exception e) {
+                DEFAULT_LOG.error("Failed to parse version: {}", e.getMessage());
+                return false;
+            }
+        }
+        return true;
     }
 
     private Pair<String, String> parseLatestReleaseId(String response) {

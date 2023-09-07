@@ -16,7 +16,7 @@ plugins {
     id 'nu.studer.jooq' version '8.2.1'
     id "com.github.johnrengelman.shadow" version "8.1.1"
     id 'java'
-    id 'org.graalvm.buildtools.native' version '0.9.24'
+    id 'org.graalvm.buildtools.native' version '0.9.25'
 }
 
 group "com.zenith"
@@ -34,9 +34,9 @@ tasks.withType(JavaCompile).configureEach {
     options.deprecation(true)
 }
 
-tasks.register('writeVersion') {
+tasks.register('writeCommitHash') {
     group 'build'
-    description 'Write version to file'
+    description 'Write commit hash / version to file'
 
     doLast {
         var ver = 'git rev-parse --short=8 HEAD'.execute().text.trim()
@@ -48,15 +48,11 @@ tasks.register('writeVersion') {
         } else {
             println "Unable to determine commit hash"
         }
-        var f = file(project.buildDir.absolutePath + '/resources/main/proxy_version.txt')
-        f.parentFile.mkdirs()
-        println "Writing version: " + project.version
-        f.write(project.version.toString())
     }
     outputs.upToDateWhen { false }
 }
 
-processResources.finalizedBy writeVersion
+processResources.finalizedBy writeCommitHash
 
 repositories {
     maven {
@@ -107,8 +103,8 @@ ext {
     lombokVersion = "1.18.28"
     porklibVersion = "0.5.8-SNAPSHOT"
     postgresVersion = '42.6.0'
-    nettyVersion = '4.1.96.Final'
-    jooqVersion = "3.18.5"
+    nettyVersion = '4.1.97.Final'
+    jooqVersion = "3.18.6"
 }
 
 jooq {
@@ -179,8 +175,8 @@ dependencies {
     shade "org.jooq:jooq:$jooqVersion"
     shade "com.zaxxer:HikariCP:5.0.1"
     shade "org.postgresql:postgresql:$postgresVersion"
-    shade 'org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r'
-    shade 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.6.0.202305301015-r'
+    shade 'org.eclipse.jgit:org.eclipse.jgit:6.6.1.202309021850-r'
+    shade 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.6.1.202309021850-r'
     shade 'com.github.mwiede:jsch:0.2.11'
     shade 'com.google.guava:guava:32.1.2-jre'
     shade "org.apache.commons:commons-math3:3.6.1"
@@ -189,9 +185,9 @@ dependencies {
         exclude group: 'net.daporkchop.lib', module: 'common'
         exclude group: 'net.daporkchop.lib', module: 'unsafe'
     }
-    shade "ch.qos.logback:logback-classic:1.4.9"
-    shade 'org.slf4j:slf4j-api:2.0.7'
-    shade 'org.slf4j:jul-to-slf4j:2.0.7'
+    shade "ch.qos.logback:logback-classic:1.4.11"
+    shade 'org.slf4j:slf4j-api:2.0.9'
+    shade 'org.slf4j:jul-to-slf4j:2.0.9'
     shade 'org.fusesource.jansi:jansi:2.4.0'
     shade 'com.mojang:brigadier:1.1.8'
     shade 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
@@ -218,7 +214,7 @@ dependencies {
     // uncomment to use io_uring
 //    shade 'io.netty.incubator:netty-incubator-transport-native-io_uring:0.0.21.Final:linux-x86_64'
 
-    shade('org.redisson:redisson:3.23.2') {
+    shade('org.redisson:redisson:3.23.4') {
         exclude group: 'io.netty'
     }
     shade 'com.nukkitx.fastutil:fastutil-object-object-maps:8.5.3'
